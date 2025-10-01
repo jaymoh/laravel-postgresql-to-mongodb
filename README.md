@@ -20,10 +20,11 @@
 
 ## Migrating a Laravel application from a relational database (MySQL) to MongoDB.
 
-The main branch of this repository contains a sample Laravel application that uses MySQL as its database. 
+The main branch of this repository contains a sample Laravel application that uses MySQL as its database.
 The `mongodb` branch contains the same application, but it has been modified to use MongoDB as its database.
 
 ### Prerequisites
+
 - PHP 8.2 or higher
 - Composer
 - MySQL
@@ -35,17 +36,122 @@ The `mongodb` branch contains the same application, but it has been modified to 
 - Git
 - A code editor of your choice (e.g., VSCode, PHPStorm)
 - Basic knowledge of Laravel, MySQL, and MongoDB
+- Docker and Docker Compose (for simplified setup)
+- (Optional) For manual setup, install [MySQL Server](https://dev.mysql.com/downloads/mysql/) locally. 
+- MongoDB Server can be installed locally, or you can use the MongoDB cloud service [MongoDB Atlas](https://www.mongodb.com/atlas).
 
 ### Installation and Setup
-(todo: And the tutorial link here when it's ready)
 
-We have included a `docker-compose.yml` file to simplify the setup process. For the main branch, it sets up a MySQL database, and for the `mongodb` branch, it sets up a MongoDB database.
+**(TODO: And the tutorial link here when it's ready)**
+
+#### Quick Setup with Docker
+
+If you have Docker installed, you can get up and running quickly.
+
+We have included a `docker-compose.yml` file to simplify the setup process. For the main branch, it sets up a MySQL
+database, so you can test the app before we migrate to MongoDB.
+
+The `mongodb` branch, has its own `docker-compose.yml` file that sets up a MongoDB database.
 
 1. Clone the repository:
    ```bash
-    git clone 
-   
-    git checkout main # or git checkout mongodb for the MongoDB version
+    git clone git@github.com:jaymoh/laravel-mysql-to-mongodb.git
     cd laravel-mysql-to-mongodb
     ```
+2. Copy the `.env.example` file to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+3. Start the Docker containers:
+   ```bash
+   docker-compose up -d
+   ```
+4. Run setup commands inside the container:
+    ```bash
+   docker-compose exec app composer install
+   docker-compose exec app php artisan key:generate
+   docker-compose exec app php artisan migrate --seed
+   ```
+5. Install and build frontend assets:
+    ```bash
+   docker-compose exec app npm install
+   docker-compose exec app npm run dev
+   ```
+6. Access the application:
+   Open your browser and navigate to `http://localhost:8000`.
 
+#### Manual Setup
+
+If you prefer to set up without Docker:
+
+1. Clone the repository:
+   ```bash
+   git clone git@github.com:jaymoh/laravel-mysql-to-mongodb.git
+   cd laravel-mysql-to-mongodb
+    ```
+2. Install dependencies:
+   ```bash
+   composer install
+   ```
+3. Set up environment variables:
+    ```bash
+   cp .env.example .env
+   php artisan key:generate
+    ```
+4. Configure database connection in .env:
+    - For MySQL (main branch):
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=laravel
+   DB_USERNAME=root
+   DB_PASSWORD=password
+    ```
+    - For MongoDB (mongodb branch):
+    ```env
+    DB_CONNECTION=mongodb
+    DB_HOST=
+    DB_PORT=27017
+    DB_DATABASE=laravel
+    DB_USERNAME=
+    DB_PASSWORD=
+    ```
+5. Run migrations and seed the database:
+   ```bash
+   php artisan migrate --seed
+   ```
+6. Install and build frontend assets:
+   ```bash
+   npm install
+   npm run dev
+   ```
+7. Serve the application:
+    ```bash
+    php artisan serve
+     ```
+8. Access the application:
+    Open your browser and navigate to `http://localhost:8000`.
+
+### Switching Between MySQL and MongoDB Versions
+
+To switch between database versions:
+
+1. Checkout the desired branch:
+   - For MySQL:
+     ```bash
+     git checkout main
+     ```
+   - For MongoDB:
+     ```bash
+     git checkout mongodb
+     ```
+2. Follow the setup instructions for the chosen branch. Remember to:
+    - Run composer install after switching branches as dependencies may differ.
+    - Update your .env file with appropriate database settings.
+    - Clear configuration cache with php artisan config:clear
+    - Run migrations again if needed: php artisan migrate:fresh --seed
+
+### Application Features
+A simple app ( users, blog posts, comments).
+- It allows us to demonstrate CRUD operations and relationships in both MySQL and MongoDB.
