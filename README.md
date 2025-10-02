@@ -1,27 +1,27 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="300" alt="Laravel Logo"></a></p>
 
 <p align="center">
-  <a href="https://www.mysql.com">
-    <img src="https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
-  </a>
+  <a href="https://www.postgresql.org">
+  <img src="https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+</a>
  &nbsp;&nbsp;➜&nbsp;&nbsp;
   <a href="https://www.mongodb.com">
     <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB">
   </a>
 </p>
 
-# Laravel MySQL to MongoDB Migration
+# Laravel Postgres to MongoDB Migration
 
-This repo demonstrates how easy it is to migrate a Laravel application from a relational database (MySQL) to MongoDB.
+This repo demonstrates how easy it is to migrate a Laravel application from a relational database (Postgres) to MongoDB.
 
-The main branch of this repository contains a sample Laravel application that uses MySQL as its database.
+The main branch of this repository contains a sample Laravel application that uses Postgres as its database.
 The `mongodb` branch contains the same application, but it has been modified to use MongoDB as its database.
 
 ### Prerequisites
 
 - PHP 8.2 or higher
 - Composer
-- MySQL
+- Postgres
 - MongoDB
 - Laravel 12.x
 - Laravel MongoDB package (jenssegers/mongodb)
@@ -29,9 +29,9 @@ The `mongodb` branch contains the same application, but it has been modified to 
 - Node.js and npm (for frontend scaffolding)
 - Git
 - A code editor of your choice (e.g., VSCode, PHPStorm)
-- Basic knowledge of Laravel, MySQL, and MongoDB
+- Basic knowledge of Laravel, Postgres, and MongoDB
 - Docker and Docker Compose (for simplified setup)
-- (Optional) For manual setup, install [MySQL Server](https://dev.mysql.com/downloads/mysql/) locally. 
+- (Optional) For manual setup, install [PostgreSQL Server](https://www.postgresql.org/download/) locally.
 - MongoDB Server can be installed locally, or you can use the MongoDB cloud service [MongoDB Atlas](https://www.mongodb.com/atlas).
 
 ### Installation and Setup
@@ -42,15 +42,15 @@ The `mongodb` branch contains the same application, but it has been modified to 
 
 If you have Docker installed, you can get up and running quickly.
 
-We have included a `docker-compose.yml` file to simplify the setup process. For the main branch, it sets up a MySQL
+We have included a `docker-compose.yml` file to simplify the setup process. For the main branch, it sets up a Postgres
 database, so you can test the app before we migrate to MongoDB.
 
 The `mongodb` branch, has its own `docker-compose.yml` file that sets up a MongoDB database.
 
 1. Clone the repository:
    ```bash
-    git clone git@github.com:jaymoh/laravel-mysql-to-mongodb.git
-    cd laravel-mysql-to-mongodb
+    git clone git@github.com:jaymoh/laravel-postgresql-to-mongodb.git
+    cd laravel-postgresql-to-mongodb
     ```
 2. Copy the `.env.example` file to `.env`:
    ```bash
@@ -80,8 +80,8 @@ If you prefer to set up without Docker:
 
 1. Clone the repository:
    ```bash
-   git clone git@github.com:jaymoh/laravel-mysql-to-mongodb.git
-   cd laravel-mysql-to-mongodb
+   git clone git@github.com:jaymoh/laravel-postgresql-to-mongodb.git
+   cd laravel-postgresql-to-mongodb
     ```
 2. Install dependencies:
    ```bash
@@ -93,9 +93,9 @@ If you prefer to set up without Docker:
    php artisan key:generate
     ```
 4. Configure database connection in .env:
-    - For MySQL (main branch):
+    - For Postgres (main branch):
    ```env
-   DB_CONNECTION=mysql
+   DB_CONNECTION=pgsql
    DB_HOST=127.0.0.1
    DB_PORT=3306
    DB_DATABASE=laravel
@@ -127,12 +127,12 @@ If you prefer to set up without Docker:
 8. Access the application:
     Open your browser and navigate to `http://localhost:8000`.
 
-### Switching Between MySQL and MongoDB Versions
+### Switching Between Postgres and MongoDB Versions
 
 To switch between database versions:
 
 1. Checkout the desired branch:
-   - For MySQL:
+   - For Postgres:
      ```bash
      git checkout main
      ```
@@ -148,4 +148,4 @@ To switch between database versions:
 
 ### Application Features
 A simple app ( users, blog posts, comments).
-- It allows us to demonstrate CRUD operations and relationships in both MySQL and MongoDB.
+- It allows us to demonstrate CRUD operations and relationships in both Postgres and MongoDB.
