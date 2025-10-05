@@ -15,8 +15,8 @@ class CommentFactory extends Factory
     public function definition(): array
     {
         return [
-            'post_id' => Post::factory(),
-            'user_id' => User::factory(), // creates a user if none provided,
+            'post_id' => 1,
+            'user_id' => 1,
             'body' => $this->faker->paragraphs(1, true),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),

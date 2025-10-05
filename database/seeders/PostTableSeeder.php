@@ -16,6 +16,8 @@ class PostTableSeeder extends Seeder
      */
     public function run(): void
     {
+        Post::truncate();
+
         $users = User::all();
 
         if ($users->isEmpty()) {

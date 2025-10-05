@@ -15,15 +15,15 @@
          */
         public function index(Request $request)
         {
-            // Start a query for posts
-            $query = Post::query();
+            // Start a query for posts with user and comments count
+            $query = Post::with('user')->withCount('comments');
 
             // Optional search on title or body via ?q=term
             if ($request->filled('q')) {
                 $term = $request->input('q');
                 $query->where(function ($q) use ($term) {
                     $q->where('title', 'like', "%{$term}%")
-                      ->orWhere('body', 'like', "%{$term}%");
+                        ->orWhere('body', 'like', "%{$term}%");
                 });
             }
 
@@ -37,6 +37,7 @@
 
             return view('posts.index', compact('posts'));
         }
+
 
         /**
          * Show the form for creating a new resource.

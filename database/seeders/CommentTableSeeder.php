@@ -17,6 +17,8 @@ class CommentTableSeeder extends Seeder
      */
     public function run(): void
     {
+        Comment::truncate();
+
         $users = User::all();
         $posts = Post::all();
 
