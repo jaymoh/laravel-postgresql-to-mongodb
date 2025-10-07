@@ -19,6 +19,7 @@
             $query = Post::with('user')->withCount('comments');
 
             // Optional search on title or body via ?q=term
+            // todo: Implement full-text search with Laravel Scout and a elasticsearch driver
             if ($request->filled('q')) {
                 $term = $request->input('q');
                 $query->where(function ($q) use ($term) {

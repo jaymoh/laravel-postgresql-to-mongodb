@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'LaravelMongoDb'),
+    'name' => env('APP_NAME', 'Laravel MongoDb'),
 
     /*
     |--------------------------------------------------------------------------

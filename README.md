@@ -14,8 +14,9 @@
 
 This repo demonstrates how easy it is to migrate a Laravel application from a relational database (Postgres) to MongoDB.
 
-The main branch of this repository contains a sample Laravel application that uses Postgres as its database.
-The `mongodb` branch contains the same application, but it has been modified to use MongoDB as its database.
+The main branch of this repository contains a sample Laravel application that uses Postgres as its database, and ElasticSearch for full text search.
+
+The `mongodb` branch contains the same application, but it has been modified to use MongoDB Atlas as its database and Atlas Search for full text search.
 
 ### Prerequisites
 
@@ -30,7 +31,7 @@ The `mongodb` branch contains the same application, but it has been modified to 
 - Git
 - A code editor of your choice (e.g., VSCode, PHPStorm)
 - Basic knowledge of Laravel, Postgres, and MongoDB
-- Docker and Docker Compose (for simplified setup)
+- Docker (for simplified setup)
 - (Optional) For manual setup, install [PostgreSQL Server](https://www.postgresql.org/download/) locally.
 - MongoDB Server can be installed locally, or you can use the MongoDB cloud service [MongoDB Atlas](https://www.mongodb.com/atlas).
 
@@ -43,9 +44,9 @@ The `mongodb` branch contains the same application, but it has been modified to 
 If you have Docker installed, you can get up and running quickly.
 
 We have included a `docker-compose.yml` file to simplify the setup process. For the main branch, it sets up a Postgres
-database, so you can test the app before we migrate to MongoDB.
+Database, ElasticSearch container, a Laravel Queue Worker, and runs the laravel scout command to index the posts in elastic search, so you can test the app before we migrate to MongoDB.
 
-The `mongodb` branch, has its own `docker-compose.yml` file that sets up a MongoDB database.
+The `mongodb` branch, has its own `docker-compose.yml` file that sets up the application and a laravel queue worker. We are using MongoDB Atlas for the database in this branch, so no need of a container for MongoDB. You will however need to set up a free cluster on MongoDB Atlas and update the `.env` file with your connection string.
 
 1. Clone the repository:
    ```bash
@@ -58,20 +59,13 @@ The `mongodb` branch, has its own `docker-compose.yml` file that sets up a Mongo
    ```
 3. Start the Docker containers:
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
-4. Run setup commands inside the container:
-    ```bash
-   docker-compose exec app composer install
-   docker-compose exec app php artisan key:generate
-   docker-compose exec app php artisan migrate --seed
-   ```
-5. Install and build frontend assets:
-    ```bash
-   docker-compose exec app npm install
-   docker-compose exec app npm run dev
-   ```
-6. Access the application:
+   The above command will build and start the application, Postgres database, and other necessary services in detached mode. 
+   The `Dockerfile.app` will handle the installation of PHP dependencies, run and build frontend assets, set up the application, and run migrations and seeders.
+   The `Dockerfile.queue` will set up a Laravel queue worker to handle any queued jobs.
+
+4. Access the application:
    Open your browser and navigate to `http://localhost:8000`.
 
 #### Manual Setup
@@ -97,10 +91,10 @@ If you prefer to set up without Docker:
    ```env
    DB_CONNECTION=pgsql
    DB_HOST=127.0.0.1
-   DB_PORT=3306
+   DB_PORT=5432
    DB_DATABASE=laravel
-   DB_USERNAME=root
-   DB_PASSWORD=password
+   DB_USERNAME=laravel
+   DB_PASSWORD=secret
     ```
     - For MongoDB (mongodb branch):
     ```env

@@ -5,9 +5,9 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Posts</h1>
-        <form class="form-inline" method="GET" action="{{ url()->current() }}">
-            <input type="search" name="q" class="form-control mr-2" placeholder="Search..." value="{{ request('q') }}">
-            <button type="submit" class="btn btn-primary">Search</button>
+        <form class="form-inline d-flex align-items-center" method="GET" action="{{ url()->current() }}">
+            <input type="search" name="q" class="form-control me-2" placeholder="Search..." value="{{ request('q') }}">
+            <button type="submit" class="btn btn-primary ms-2">Search</button>
         </form>
     </div>
 
