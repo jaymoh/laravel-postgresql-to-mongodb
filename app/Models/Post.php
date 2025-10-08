@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use JeroenG\Explorer\Application\Explored;
 use Laravel\Scout\Searchable;
 
-class Post extends Model
+class Post extends Model implements Explored
 {
     use HasFactory, Searchable;
 
@@ -26,10 +27,18 @@ class Post extends Model
 
     protected function makeAllSearchableUsing(Builder $query): Builder
     {
-        return $query->with('user');
+        return $query->with('user')->withCount('comments');
     }
 
-    public function mappableAs()
+    /**
+     * Get the name of the index associated with the model.
+     */
+    public function searchableAs(): string
+    {
+        return 'posts_index';
+    }
+
+    public function mappableAs(): array
     {
         return [
             'id' => 'keyword',
@@ -47,7 +56,7 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function comments(): HasMany|Post
+    public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }

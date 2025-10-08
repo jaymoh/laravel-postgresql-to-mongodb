@@ -65,8 +65,23 @@ The `mongodb` branch, has its own `docker-compose.yml` file that sets up the app
    The `Dockerfile.app` will handle the installation of PHP dependencies, run and build frontend assets, set up the application, and run migrations and seeders.
    The `Dockerfile.queue` will set up a Laravel queue worker to handle any queued jobs.
 
-4. Access the application:
-   Open your browser and navigate to `http://localhost:8000`.
+4. Run the following command to import posts into ElasticSearch (main branch only):
+   ```bash
+   docker compose exec app php artisan scout:import "App\Models\Post"
+   ```
+   This command will index all existing posts into ElasticSearch for full text search functionality.
+
+5. Access the application:
+   Open your browser and navigate to `http://localhost:8080`.
+
+6. You can log in with the following credentials:
+   - Email: `test@example.com`
+   - Password: `password123`
+
+7. To stop the application and remove containers, networks, and volumes, run:
+   ```bash
+   docker compose down -v
+   ```
 
 #### Manual Setup
 
@@ -109,16 +124,20 @@ If you prefer to set up without Docker:
    ```bash
    php artisan migrate --seed
    ```
-6. Install and build frontend assets:
+6. Batch import posts into ElasticSearch (main branch only):
+   ```bash
+   php artisan scout:import "App\Models\Post"
+   ```
+7. Install and build frontend assets:
    ```bash
    npm install
    npm run dev
    ```
-7. Serve the application:
+8. Serve the application:
     ```bash
     php artisan serve
      ```
-8. Access the application:
+9. Access the application:
     Open your browser and navigate to `http://localhost:8000`.
 
 ### Switching Between Postgres and MongoDB Versions
@@ -141,5 +160,5 @@ To switch between database versions:
     - Run migrations again if needed: php artisan migrate:fresh --seed
 
 ### Application Features
-A simple app ( users, blog posts, comments).
+A simple app ( users, blog posts, comments), full text search.
 - It allows us to demonstrate CRUD operations and relationships in both Postgres and MongoDB.

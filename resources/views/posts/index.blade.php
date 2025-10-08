@@ -5,10 +5,15 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Posts</h1>
-        <form class="form-inline d-flex align-items-center" method="GET" action="{{ url()->current() }}">
-            <input type="search" name="q" class="form-control me-2" placeholder="Search..." value="{{ request('q') }}">
-            <button type="submit" class="btn btn-primary ms-2">Search</button>
-        </form>
+        <div class="d-flex align-items-center">
+            <form class="form-inline d-flex align-items-center me-2" method="GET" action="{{ url()->current() }}">
+                <input type="search" name="q" class="form-control me-2" placeholder="Search..." value="{{ request('q') }}" oninput="if(this.value === '') this.form.submit();">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+            @auth
+                <a href="{{ route('posts.create') }}" class="btn btn-success">Create Post</a>
+            @endauth
+        </div>
     </div>
 
     @if($posts->count())
