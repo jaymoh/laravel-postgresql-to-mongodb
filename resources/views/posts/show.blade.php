@@ -7,11 +7,11 @@
             <!-- Post Card -->
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">{{ $post->title }}</h4>
+                    <h4 class="mb-0 me-2">{{ $post->title }}</h4>
                     @auth
                         @if(auth()->id() === $post->user_id)
-                            <div>
-                                <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-sm btn-warning me-2">Edit</a>
                                 <form action="{{ route('posts.destroy', $post->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')

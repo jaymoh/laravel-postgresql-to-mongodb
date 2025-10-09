@@ -21,7 +21,8 @@ class Post extends Model implements Explored
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'created_at' => $this->created_at,
+            // ensure created_at is a string for Elasticsearch
+            'created_at' => $this->created_at?->toIso8601String(),
         ];
     }
 

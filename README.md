@@ -65,9 +65,10 @@ The `mongodb` branch, has its own `docker-compose.yml` file that sets up the app
    The `Dockerfile.app` will handle the installation of PHP dependencies, run and build frontend assets, set up the application, and run migrations and seeders.
    The `Dockerfile.queue` will set up a Laravel queue worker to handle any queued jobs.
 
-4. Run the following command to import posts into ElasticSearch (main branch only):
+4. Run the following command to import posts and users into ElasticSearch (main branch only):
    ```bash
-   docker compose exec app php artisan scout:import "App\Models\Post"
+   docker compose exec app php artisan scout:queue-import "App\Models\Post"
+   docker compose exec app php artisan scout:queue-import "App\Models\User"
    ```
    This command will index all existing posts into ElasticSearch for full text search functionality.
 
