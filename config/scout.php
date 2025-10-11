@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'driver' => env('SCOUT_DRIVER', 'elastic'),
+    'driver' => env('SCOUT_DRIVER', 'mongodb'),
 
     /*
     |--------------------------------------------------------------------------
@@ -204,6 +204,20 @@ return [
             //     ],
             // ],
         ],
+    ],
+
+    /**
+     * --------------------------------------------------------------------------
+     * MongoDB Configuration
+     * --------------------------------------------------------------------------
+     *
+     * Here you may configure your MongoDB settings. This configuration is used
+     * when the "mongodb" driver is set as the default search engine above.
+     * Make sure to set the connection name that corresponds to your
+     * MongoDB connection in the database configuration file.
+     */
+    'mongodb' => [
+        'connection' => env('SCOUT_MONGODB_CONNECTION', 'mongodb'),
     ],
 
 ];
