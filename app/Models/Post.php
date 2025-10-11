@@ -4,13 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use JeroenG\Explorer\Application\Explored;
 use Laravel\Scout\Searchable;
+use MongoDB\Laravel\Eloquent\Model;
 
-class Post extends Model implements Explored
+class Post extends Model
 {
     use HasFactory, Searchable;
 
@@ -21,7 +20,6 @@ class Post extends Model implements Explored
         return [
             'id' => $this->id,
             'title' => $this->title,
-            // ensure created_at is a string for Elasticsearch
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }
@@ -37,19 +35,6 @@ class Post extends Model implements Explored
     public function searchableAs(): string
     {
         return 'posts_index';
-    }
-
-    public function mappableAs(): array
-    {
-        return [
-            'id' => 'keyword',
-            'title' => 'text',
-            'created_at' => 'date',
-            'user' => [
-                'name' => 'text',
-                'email' => 'keyword',
-            ],
-        ];
     }
 
     public function user(): BelongsTo
