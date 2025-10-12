@@ -12,11 +12,6 @@ services:
     user: "1000:1000" # Run all processes in the container as UID 1000 (default host user)
     networks:
       - app-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
     healthcheck:
       test: [ "CMD", "php", "artisan", "migrate:status" ]
       interval: 10s
@@ -39,26 +34,6 @@ services:
     depends_on:
       - app
 
-  # PostgreSQL database
-  postgres:
-    image: postgres:15-alpine
-    container_name: laravel_postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${DB_DATABASE:-laravel}
-      POSTGRES_USER: ${DB_USERNAME:-laravel}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${DB_USERNAME:-laravel}"]
-      interval: 10s
-      retries: 5
-
   # Laravel QueueWorker
   laravel_queue:
     build:
@@ -74,35 +49,7 @@ services:
     depends_on:
       app:
         condition: service_healthy
-      postgres:
-        condition: service_healthy
-
-  # Elasticsearch
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.4
-    container_name: laravel_elasticsearch
-    restart: unless-stopped
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "cluster.name=${ES_CLUSTER_NAME:-laravel_cluster}"
-      - "bootstrap.memory_lock=true"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9200"]
-      interval: 30s
-      retries: 5
 
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  postgres_data:
-  elasticsearch_data:

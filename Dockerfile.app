@@ -6,9 +6,9 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
-    libpq-dev \
     libzip-dev \
     libicu-dev \
+    libssl-dev \
     zip \
     curl \
     unzip \
@@ -24,12 +24,13 @@ RUN apt-get install -y nodejs
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_pgsql pgsql zip exif pcntl bcmath gd intl
+RUN docker-php-ext-install zip exif pcntl bcmath gd intl
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# RUN pecl install mongodb && docker-php-ext-enable mongodb
+# Install MongoDB PHP extension
+RUN pecl install mongodb && docker-php-ext-enable mongodb
 
 # Set working directory
 WORKDIR /var/www/html
@@ -69,4 +70,3 @@ EXPOSE 9000
 
 USER www-data
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-

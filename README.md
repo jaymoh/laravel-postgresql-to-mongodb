@@ -46,12 +46,14 @@ If you have Docker installed, you can get up and running quickly.
 We have included a `docker-compose.yml` file to simplify the setup process. For the main branch, it sets up a Postgres
 Database, ElasticSearch container, a Laravel Queue Worker, and runs the laravel scout command to index the posts in elastic search, so you can test the app before we migrate to MongoDB.
 
-The `mongodb` branch, has its own `docker-compose.yml` file that sets up the application and a laravel queue worker. We are using MongoDB Atlas for the database in this branch, so no need of a container for MongoDB. You will however need to set up a free cluster on MongoDB Atlas and update the `.env` file with your connection string.
+The `mongodb` branch, has its own `docker-compose.yml` file that sets up the application and a laravel queue worker. We are using MongoDB Atlas for the database in this branch, so no need of a container for MongoDB. 
+You will however need to set up a free cluster on MongoDB Atlas and update the `.env` file with your connection string.
 
-1. Clone the repository:
+1. Clone the repository and checkout the `mongodb` branch:
    ```bash
-    git clone git@github.com:jaymoh/laravel-postgresql-to-mongodb.git
-    cd laravel-postgresql-to-mongodb
+   git clone git@github.com:jaymoh/laravel-postgresql-to-mongodb.git
+   cd laravel-postgresql-to-mongodb
+   git checkout mongodb
     ```
 2. Copy the `.env.example` file to `.env`:
    ```bash
@@ -61,16 +63,16 @@ The `mongodb` branch, has its own `docker-compose.yml` file that sets up the app
    ```bash
    docker compose up -d
    ```
-   The above command will build and start the application, Postgres database, and other necessary services in detached mode. 
+   The above command will build and start the application, and other necessary services in detached mode. 
    The `Dockerfile.app` will handle the installation of PHP dependencies, run and build frontend assets, set up the application, and run migrations and seeders.
    The `Dockerfile.queue` will set up a Laravel queue worker to handle any queued jobs.
 
-4. Run the following command to import posts and users into ElasticSearch (main branch only):
+4. Run the following command to import posts and users into MongoDB Atlas Search:
    ```bash
    docker compose exec app php artisan scout:queue-import "App\Models\Post"
    docker compose exec app php artisan scout:queue-import "App\Models\User"
    ```
-   This command will index all existing posts into ElasticSearch for full text search functionality.
+   This command will index all existing posts into MongoDB Atlas Search for full text search functionality.
 
 5. Access the application:
    Open your browser and navigate to `http://localhost:8080`.
@@ -92,6 +94,7 @@ If you prefer to set up without Docker:
    ```bash
    git clone git@github.com:jaymoh/laravel-postgresql-to-mongodb.git
    cd laravel-postgresql-to-mongodb
+   git checkout mongodb
     ```
 2. Install dependencies:
    ```bash
@@ -115,9 +118,10 @@ If you prefer to set up without Docker:
     - For MongoDB (mongodb branch):
     ```env
     DB_CONNECTION=mongodb
+    DB_URL=your_mongodb_atlas_connection_string
     DB_HOST=
     DB_PORT=27017
-    DB_DATABASE=laravel
+    DB_DATABASE=laravel_blog
     DB_USERNAME=
     DB_PASSWORD=
     ```
@@ -125,9 +129,10 @@ If you prefer to set up without Docker:
    ```bash
    php artisan migrate --seed
    ```
-6. Batch import posts into ElasticSearch (main branch only):
+6. Batch import posts and users into MongoDB Atlas Search:
    ```bash
    php artisan scout:import "App\Models\Post"
+   php artisan scout:import "App\Models\User"
    ```
 7. Install and build frontend assets:
    ```bash
