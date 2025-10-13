@@ -131,26 +131,32 @@ If you prefer to set up without Docker:
     DB_USERNAME=
     DB_PASSWORD=
     ```
-5. Run migrations and seed the database:
+5. Migrations are not necessary for MongoDB, so just run the seeders to populate sample data:
    ```bash
-   php artisan migrate --seed
+   php artisan db:seed
    ```
-6. Batch import posts and users into MongoDB Atlas Search:
+6. Create indexes in MongoDB Atlas Search:
+   ```bash
+   php artisan scout:index 'App\Models\Post'
+   php artisan scout:index 'App\Models\User'
+   ```
+   
+7. Batch import posts and users into MongoDB Atlas Search:
    ```bash
    php artisan scout:import "App\Models\Post"
    php artisan scout:import "App\Models\User"
    ```
-7. Install and build frontend assets:
+8. Install and build frontend assets:
    ```bash
    npm install
    npm run dev
    ```
-8. Serve the application:
+9. Serve the application:
     ```bash
     php artisan serve
      ```
-9. Access the application:
-    Open your browser and navigate to `http://localhost:8000`.
+10. Access the application:
+     Open your browser and navigate to `http://localhost:8000`.
 
 ### Switching Between Postgres and MongoDB Versions
 
