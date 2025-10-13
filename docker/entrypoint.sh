@@ -7,19 +7,24 @@ if ! grep -q "APP_KEY=base64:" /var/www/html/.env 2>/dev/null; then
   php artisan key:generate --force
 fi
 
-# Wait for database to be ready
-until php artisan db:show 2>/dev/null; do
-  echo "Waiting for database connection..."
+# Wait for database to be ready with timeout
+# Adds max_tries to avoid infinite loop
+echo "Waiting for MongoDB connection..."
+max_tries=30
+count=0
+until php artisan db:show > /dev/null 2>&1; do
+  count=$((count + 1))
+  if [ $count -gt $max_tries ]; then
+    echo "MongoDB connection failed after $max_tries attempts"
+    exit 1
+  fi
+  echo "Attempt $count/$max_tries..."
   sleep 2
 done
 
-echo "Database is ready!"
+echo "MongoDB is ready!"
 
-# Run migrations
-php artisan cache:table || true
-php artisan migrate --force
-
-# Seed the database
+# Seed the database to create collections
 php artisan db:seed --force
 
 # Clear caches

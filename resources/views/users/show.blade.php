@@ -14,7 +14,7 @@
                     <p class="text-muted mb-2"><strong>Member since:</strong> {{ $user->created_at->format('F d, Y') }}
                     </p>
                     <div class="mt-3">
-                        <span class="badge bg-primary me-2">{{ $user->posts_count }} Posts</span>
+                        <span class="badge bg-primary me-2">{{ $user->posts->count() }} Posts</span>
                         <span class="badge bg-success me-2">{{ $user->comments_count }} Comments</span>
                         <span class="badge bg-info">{{ $user->comments_on_own_posts_count }} Comments on Posts</span>
                     </div>
@@ -62,7 +62,7 @@
                             </div>
                             @auth
                             @if(Auth::id() === $comment->user_id)
-                            <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" class="d-inline">
+                            <form action="{{ route('comments.destroy', [$comment->post_id, $comment->index]) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-outline-danger"

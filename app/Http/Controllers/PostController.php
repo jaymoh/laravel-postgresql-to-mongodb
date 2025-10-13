@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Post;
 
@@ -23,11 +24,14 @@ class PostController extends Controller
         if ($request->filled('q')) {
             $term = $request->input('q');
             $posts = Post::search($term)->latest()->paginate(10)->withQueryString();
-            $posts->getCollection()->load('user')->loadCount('comments');
+
+            $posts->getCollection()->load('user');
         } else {
-            $query = Post::query();
-            $query = $query->with('user')->withCount('comments');
-            $posts = $query->latest()->paginate(10)->withQueryString();
+            $posts = Post::query()
+                ->with('user')
+                ->latest()
+                ->paginate(10)
+                ->withQueryString();
         }
 
         // Return JSON for API requests, otherwise render the posts index view
@@ -68,6 +72,7 @@ class PostController extends Controller
             'title' => $validated['title'],
             'body' => $validated['body'],
             'user_id' => auth()->id(),
+            'comments' => [], // Initialize comments as an empty array
         ]);
 
         // Return JSON response for API requests
@@ -88,10 +93,48 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        $post = Post::with('user', 'comments.user')->findOrFail($id);
+        $post = Post::findByMixedId($id);
+
+        if (!$post) {
+            abort(404);
+        }
+
+        // Load the post author's information
+        $post->load('user');
+
+        // Handle embedded comments and their users efficiently
+        if (count($post->comments) > 0) {
+            // Extract all unique user IDs from comments
+            $userIds = $post->comments->pluck('user_id')->unique()->filter()->toArray();
+
+            // Fetch all required users in a single query
+            $users = User::whereIn('_id', $userIds)->get()->keyBy('_id');
+
+            $comments = $post->comments;
+
+            // Map the comments collection to attach user objects
+            $comments = $comments->map(function($comment, $index) use ($users, $post) {
+                // Decode if comment is a JSON string
+                $commentData = is_string($comment) ? json_decode($comment, true) : $comment;
+                // Convert the comment array to an object
+                $commentObj = (object) $commentData;
+                $commentObj->index = $index; // Add index for reference when deleting
+                $commentObj->post_id = $post->id;
+                if (isset($commentData['user_id']) && $users->has($commentData['user_id'])) {
+                    $commentObj->user = $users[$commentData['user_id']];
+                }
+                return $commentObj;
+            });
+
+            // Replace the comments with the enriched version
+            $post->commentObjects = $comments;
+        } else {
+            $post->commentObjects = collect();
+        }
 
         return view('posts.show', compact('post'));
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -101,7 +144,11 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        $post = Post::findOrFail($id);
+        $post = Post::findByMixedId($id);
+
+        if (!$post) {
+            abort(404, 'Post not found.');
+        }
 
         return view('posts.edit', compact('post'));
     }
@@ -116,7 +163,11 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $post = Post::findOrFail($id);
+        $post = Post::findByMixedId($id);
+
+        if (!$post) {
+            abort(404, 'Post not found.');
+        }
 
         // Ensure the authenticated user is the owner of the post
         if ($post->user_id !== auth()->id()) {
@@ -150,7 +201,11 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        $post = Post::findOrFail($id);
+        $post = Post::findByMixedId($id);
+
+        if (!$post) {
+            abort(404, 'Post not found.');
+        }
 
         // Ensure the authenticated user is the owner of the post
         if ($post->user_id !== auth()->id()) {

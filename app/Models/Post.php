@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Laravel\Scout\Searchable;
 use MongoDB\Laravel\Eloquent\Model;
 
@@ -13,7 +13,18 @@ class Post extends Model
 {
     use HasFactory, Searchable;
 
-    protected $fillable = ['title', 'body', 'user_id'];
+    public static function findByMixedId($id): Post|null
+    {
+        $post = static::where('_id', $id)->first();
+
+        if (!$post && is_numeric($id)) {
+            $post = static::where('_id', (int)$id)->first();
+        }
+
+        return $post;
+    }
+
+    protected $fillable = ['title', 'body', 'user_id', 'comments'];
 
     public function toSearchableArray(): array
     {
@@ -26,7 +37,7 @@ class Post extends Model
 
     protected function makeAllSearchableUsing(Builder $query): Builder
     {
-        return $query->with('user')->withCount('comments');
+        return $query->with('user');
     }
 
     /**
@@ -34,7 +45,7 @@ class Post extends Model
      */
     public function searchableAs(): string
     {
-        return 'posts_index';
+        return config('scout.prefix') . 'posts_index';
     }
 
     public function user(): BelongsTo
@@ -42,8 +53,15 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function comments(): HasMany
+    // Helper method to get comments count
+    public function getCommentsCountAttribute(): int
     {
-        return $this->hasMany(Comment::class);
+        return count($this->comments ?? []);
+    }
+
+    // Helper method to get comments as a collection
+    public function getCommentsAttribute($value): Collection
+    {
+        return collect($value ?? []);
     }
 }

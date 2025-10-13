@@ -37,16 +37,16 @@
                     <h5 class="mb-0">Comments ({{ $post->comments->count() }})</h5>
                 </div>
                 <div class="card-body">
-                    @forelse($post->comments as $comment)
+                    @forelse($post->commentObjects as $comment)
                         <div class="mb-3 pb-3 border-bottom">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <strong>{{ $comment->user->name }}</strong>
-                                    <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                    <small class="ms-2 text-muted">{{ $comment->created_at->diffForHumans() }}</small>
                                 </div>
                                 @auth
                                     @if(auth()->id() === $comment->user_id)
-                                        <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('comments.destroy', ['postId' => $post->id, 'commentIndex' => $comment->index]) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this comment?')">Delete</button>
