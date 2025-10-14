@@ -59,9 +59,10 @@ The `mongodb` branch, has its own `docker-compose.yml` file that sets up the app
    ```
 3. Start the Docker containers:
    ```bash
-   docker compose up -d
+   docker compose up -d --build
    ```
-   The above command will build and start the application, Postgres database, and other necessary services in detached mode. 
+   The above command will build and start the application, Postgres database, and other necessary services in detached mode.
+   The --build flag ensures that Docker images are rebuilt, which is necessary when switching between branches or when dependencies have changed.
    The `Dockerfile.app` will handle the installation of PHP dependencies, run and build frontend assets, set up the application, and run migrations and seeders.
    The `Dockerfile.queue` will set up a Laravel queue worker to handle any queued jobs.
 
@@ -155,10 +156,12 @@ To switch between database versions:
      git checkout mongodb
      ```
 2. Follow the setup instructions for the chosen branch. Remember to:
-    - Run composer install after switching branches as dependencies may differ.
-    - Update your .env file with appropriate database settings.
-    - Clear configuration cache with php artisan config:clear
-    - Run migrations again if needed: php artisan migrate:fresh --seed
+    - Stop and remove existing containers: docker compose down -v 
+    - Rebuild and start containers: docker compose up -d --build 
+    - If you are following the manual process, run composer install after switching branches as dependencies may differ. 
+    - Update your .env file with appropriate database settings. 
+    - Clear configuration cache with php artisan config:clear 
+    - Run migrations again if needed (postgres main branch): php artisan migrate:fresh --seed
 
 ### Application Features
 A simple app ( users, blog posts, comments), full text search.
