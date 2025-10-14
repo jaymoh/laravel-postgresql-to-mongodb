@@ -1,0 +1,85 @@
+services:
+  # PHP/Laravel application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    user: "1000:1000" # Run all processes in the container as UID 1000 (default host user)
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD", "php", "artisan", "migrate:status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # MongoDB service
+  mongodb:
+    image: mongo:7
+    container_name: laravel_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: laravel
+      MONGO_INITDB_ROOT_PASSWORD: secret
+      MONGO_INITDB_DATABASE: laravel_blog
+    volumes:
+      - mongodb_data:/data/db
+      - ./docker/mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # Nginx web server
+  nginx:
+    image: nginx:alpine
+    container_name: laravel_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - app-network
+    depends_on:
+      - app
+      - mongodb
+
+  # Laravel QueueWorker
+  laravel_queue:
+    build:
+      context: .
+      dockerfile: Dockerfile.queue
+    container_name: laravel_queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - app-network
+    depends_on:
+      app:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
