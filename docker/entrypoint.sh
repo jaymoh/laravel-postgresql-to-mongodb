@@ -27,6 +27,14 @@ echo "MongoDB is ready!"
 # Seed the database to create collections
 php artisan db:seed --force
 
+# Prepare indexes for MongoDB Atlas Search
+php artisan scout:index "App\Models\User"
+php artisan scout:index "App\Models\Post"
+
+# Import posts and users into MongoDB Atlas Search indexes
+php artisan scout:import "App\Models\User"
+php artisan scout:import "App\Models\Post"
+
 # Clear caches
 php artisan config:cache
 php artisan cache:clear || true

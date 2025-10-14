@@ -34,14 +34,14 @@ class PostTableSeeder extends Seeder
                 [
                     'body' => 'Great tutorial! Very helpful for understanding the migration process.',
                     'user_id' => $users->random()->id,
-                    'created_at' => now()->subDays(2)->toIso8601String(),
-                    'updated_at' => now()->subDays(2)->toIso8601String(),
+                    'created_at' => now()->subDays(2),
+                    'updated_at' => now()->subDays(2),
                 ],
                 [
                     'body' => 'I was looking for something like this. Thank you!',
                     'user_id' => $users->random()->id,
-                    'created_at' => now()->subDays(1)->toIso8601String(),
-                    'updated_at' => now()->subDays(1)->toIso8601String(),
+                    'created_at' => now()->subDays(1),
+                    'updated_at' => now()->subDays(1),
                 ],
             ],
         ]);
@@ -58,8 +58,8 @@ class PostTableSeeder extends Seeder
                 $comments[] = [
                     'body' => fake()->paragraph(),
                     'user_id' => $users->random()->id,
-                    'created_at' => now()->subDays(rand(1, 30))->toIso8601String(),
-                    'updated_at' => now()->subDays(rand(1, 30))->toIso8601String(),
+                    'created_at' => now()->subDays(rand(1, 30)),
+                    'updated_at' => now()->subDays(rand(1, 30)),
                 ];
             }
 
