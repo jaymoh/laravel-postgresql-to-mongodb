@@ -21,7 +21,7 @@ services:
 
   # MongoDB service
   mongodb:
-    image: mongodb/mongodb-atlas-search:1.53.5
+    image: mongodb/mongodb-atlas-local
     container_name: laravel_mongodb
     restart: unless-stopped
     ports:
