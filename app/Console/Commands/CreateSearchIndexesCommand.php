@@ -35,11 +35,15 @@ class CreateSearchIndexesCommand extends Command
             ['name' => User::SEARCH_INDEX]
         );
 
+        $this->info('Created search index for users collection.');
+
         $collection = DB::connection('mongodb')->getCollection('posts');
 
         $collection->createSearchIndex(
             ['mappings' => ['dynamic' => true]],
             ['name' => Post::SEARCH_INDEX]
         );
+
+        $this->info('Created search index for posts collection.');
     }
 }

@@ -37,7 +37,7 @@ class PostController extends Controller
             $total = Cache::remember("search_total_{$keyTerm}_posts_search_index", 3600, function () use ($term) {
                 return Post::search(
                     operator: Search::text(
-                        path: ['title', 'body'],
+                        path: ['title', 'body', 'owner_name'],
                         query: $term
                     ),
                     index: Post::SEARCH_INDEX
@@ -46,7 +46,7 @@ class PostController extends Controller
 
             // Get paginated results using aggregation pipeline
             $rawResults = Post::aggregate()
-                ->search(Search::text(path: ['title', 'body'], query: $term), index: Post::SEARCH_INDEX)
+                ->search(Search::text(path: ['title', 'body', 'owner_name'], query: $term), index: Post::SEARCH_INDEX)
                 ->sort(created_at: -1)
                 ->skip($skip)
                 ->limit($perPage)

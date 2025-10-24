@@ -27,6 +27,8 @@ echo "MongoDB is ready!"
 # Seed the database to create collections
 php artisan db:seed --force
 
+sleep 2
+
 # Flush existing Search indexes
 php artisan app:drop-search-indexes
 
