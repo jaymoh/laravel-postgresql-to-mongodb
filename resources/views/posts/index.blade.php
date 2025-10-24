@@ -27,7 +27,7 @@
             <p class="mb-1 text-muted">{{ \Illuminate\Support\Str::limit($post->body, 150) }}</p>
             <div class="d-flex justify-content-between align-items-center mt-2">
                 <small class="text-muted">
-                    <i class="bi bi-person"></i> By {{ $post->user->name ?? 'Unknown' }}
+                    <i class="bi bi-person"></i> By {{ $post->owner_name ?? 'Unknown' }}
                 </small>
                 <small class="text-muted">
                     <i class="bi bi-chat"></i> {{ $post->comments_count }} {{ Str::plural('comment', $post->comments_count) }}

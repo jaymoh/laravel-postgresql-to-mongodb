@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Post;
+use Illuminate\Support\Facades\Cache;
+use MongoDB\Builder\Search;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PostController extends Controller
 {
@@ -23,18 +26,53 @@ class PostController extends Controller
     {
         if ($request->filled('q')) {
             $term = $request->input('q');
-            $posts = Post::search($term)->latest()->paginate(10)->withQueryString();
+            $perPage = $request->input('perPage', 10);
+            $page = $request->input('page', 1);
+            $skip = ($page - 1) * $perPage;
 
-            $posts->getCollection()->load('user');
+            // Get total count for the search term
+            // We are using cache here so that we don't have to count every time for the same term
+            $keyTerm = preg_replace('/\s+/', '_', strtolower($term));
+
+            $total = Cache::remember("search_total_{$keyTerm}_posts_search_index", 3600, function () use ($term) {
+                return Post::search(
+                    operator: Search::text(
+                        path: ['title', 'body'],
+                        query: $term
+                    ),
+                    index: Post::SEARCH_INDEX
+                )->count();
+            });
+
+            // Get paginated results using aggregation pipeline
+            $rawResults = Post::aggregate()
+                ->search(Search::text(path: ['title', 'body'], query: $term), index: Post::SEARCH_INDEX)
+                ->sort(created_at: -1)
+                ->skip($skip)
+                ->limit($perPage)
+                ->get();
+
+            // Hydrate results into models
+            $results = Post::hydrate($rawResults->toArray());
+
+            // Create Laravel paginator
+            $posts = new LengthAwarePaginator(
+                $results,
+                $total,
+                $perPage,
+                $page,
+                [
+                    'path' => $request->url(),
+                    'query' => $request->query()
+                ]
+            );
         } else {
             $posts = Post::query()
-                ->with('user')
                 ->latest()
                 ->paginate(10)
                 ->withQueryString();
         }
 
-        // Return JSON for API requests, otherwise render the posts index view
         if ($request->wantsJson()) {
             return response()->json($posts);
         }
@@ -72,6 +110,7 @@ class PostController extends Controller
             'title' => $validated['title'],
             'body' => $validated['body'],
             'user_id' => auth()->id(),
+            'owner_name' => auth()->user()->name, // Include owner's name for extended reference pattern and searchability
             'comments' => [], // Initialize comments as an empty array
         ]);
 
@@ -113,11 +152,11 @@ class PostController extends Controller
             $comments = $post->comments;
 
             // Map the comments collection to attach user objects
-            $comments = $comments->map(function($comment, $index) use ($users, $post) {
+            $comments = $comments->map(function ($comment, $index) use ($users, $post) {
                 // Decode if comment is a JSON string
                 $commentData = is_string($comment) ? json_decode($comment, true) : $comment;
                 // Convert the comment array to an object
-                $commentObj = (object) $commentData;
+                $commentObj = (object)$commentData;
                 $commentObj->index = $index; // Add index for reference when deleting
                 $commentObj->post_id = $post->id;
                 if (isset($commentData['user_id']) && $users->has($commentData['user_id'])) {

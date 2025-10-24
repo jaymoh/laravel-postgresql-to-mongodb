@@ -3,17 +3,17 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Scout\Searchable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, Searchable;
+    use HasFactory, Notifiable;
+
+    public const SEARCH_INDEX = 'users_search_index';
 
     public static function findByMixedId($id): User|Authenticatable|null
     {
@@ -25,7 +25,6 @@ class User extends Authenticatable
 
         return $user;
     }
-
 
     protected $fillable = [
         'name',
@@ -44,26 +43,6 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    public function toSearchableArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
-            'created_at' => $this->created_at?->toIso8601String(),
-        ];
-    }
-
-    protected function makeAllSearchableUsing(Builder $query): Builder
-    {
-        return $query->with('posts');
-    }
-
-    public function searchableAs(): string
-    {
-        return config('scout.prefix') . 'users_index';
     }
 
     public function posts(): HasMany

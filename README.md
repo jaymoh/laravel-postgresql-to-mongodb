@@ -14,9 +14,11 @@
 
 This repo demonstrates how easy it is to migrate a Laravel application from a relational database (Postgres) to MongoDB.
 
-The main branch of this repository contains a sample Laravel application that uses Postgres as its database, and ElasticSearch for full text search.
+The main branch of this repository contains a sample Laravel application that uses Postgres as its database, and
+ElasticSearch for full text search.
 
-The `mongodb` branch contains the same application, but it has been modified to use MongoDB Atlas as its database and Atlas Search for full text search.
+The `mongodb` branch contains the same application, but it has been modified to use MongoDB Atlas as its database and
+Atlas Search for full text search.
 
 ### Prerequisites
 
@@ -33,7 +35,8 @@ The `mongodb` branch contains the same application, but it has been modified to 
 - Basic knowledge of Laravel, Postgres, and MongoDB
 - Docker (for simplified setup)
 - (Optional) For manual setup, install [PostgreSQL Server](https://www.postgresql.org/download/) locally.
-- MongoDB Server can be installed locally, or you can use the MongoDB cloud service [MongoDB Atlas](https://www.mongodb.com/atlas).
+- MongoDB Server can be installed locally, or you can use the MongoDB cloud
+  service [MongoDB Atlas](https://www.mongodb.com/atlas).
 
 ### Installation and Setup
 
@@ -44,10 +47,14 @@ The `mongodb` branch contains the same application, but it has been modified to 
 If you have Docker installed, you can get up and running quickly.
 
 We have included a `docker-compose.yml` file to simplify the setup process. For the main branch, it sets up a Postgres
-Database, ElasticSearch container, a Laravel Queue Worker, and runs the laravel scout command to index the posts in elastic search, so you can test the app before we migrate to MongoDB.
+Database, ElasticSearch container, a Laravel Queue Worker, and runs the laravel scout command to index the posts in
+elastic search, so you can test the app before we migrate to MongoDB.
 
-The `mongodb` branch, has its own `docker-compose.yml` file that sets up the application and a laravel queue worker. We are using MongoDB Atlas for the database in this branch, so no need of a container for MongoDB. 
-You will however need to set up a free cluster on MongoDB Atlas and update the `.env` file with your connection string.
+The `mongodb` branch, has its own `docker-compose.yml` file that sets up the application and a laravel queue worker. We
+are using MongoDB Atlas for the database in this branch, so no need of a container for MongoDB.
+You will however need to set up a free cluster on MongoDB Atlas and update the `.env` file with your connection string. 
+Mongodb Atlas includes Atlas Search, so no need for an additional container for search. We have included a command to create
+the necessary search indexes in Atlas Search. 
 
 1. Clone the repository and checkout the `mongodb` branch:
    ```bash
@@ -64,31 +71,30 @@ You will however need to set up a free cluster on MongoDB Atlas and update the `
    docker compose up -d --build
    ```
    The above command will build and start the application, and other necessary services in detached mode.
-   The --build flag ensures that Docker images are rebuilt, which is necessary when switching between branches or when dependencies have changed.
-   The `Dockerfile.app` will handle the installation of PHP dependencies, run and build frontend assets, set up the application, and run migrations and seeders.
+   The --build flag ensures that Docker images are rebuilt, which is necessary when switching between branches or when
+   dependencies have changed.
+   The `Dockerfile.app` will handle the installation of PHP dependencies, run and build frontend assets, set up the
+   application, and run migrations and seeders.
    The `Dockerfile.queue` will set up a Laravel queue worker to handle any queued jobs.
 
-4. Run the following commands to create indexes in MongoDB Atlas Search:
+4. Run the following commands to create MongoDB Atlas Search indexes for posts and users:
    ```bash
-   docker compose exec app php artisan scout:index 'App\Models\Post'
-   docker compose exec app php artisan scout:index 'App\Models\User'
+   docker compose exec app php artisan app:create-search-indexes
    ```
-   
-5. Run the following command to import posts and users into MongoDB Atlas Search indexes:
-   ```bash
-   docker compose exec app php artisan scout:import "App\Models\Post"
-   docker compose exec app php artisan scout:import "App\Models\User"
-   ```
-   This command will index all existing posts into MongoDB Atlas Search for full text search functionality. 
+   This is a custom artisan command `app/Console/Commands/CreateSearchIndexesCommand.php` defined in the application to
+   create the necessary search indexes in MongoDB Atlas Search for the `posts` and `users` collections.
+   It was created following the MongoDB Laravel package Atlas Search documentation for creating search indexes from
+   existing
+   collections: [MongoDB Atlas Search — Laravel MongoDB documentation](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/fundamentals/atlas-search/).
 
-6. Access the application:
+5. Access the application:
    Open your browser and navigate to `http://localhost:8080`.
 
-7. You can log in with the following credentials:
-   - Email: `test@example.com`
-   - Password: `password123`
+6. You can log in with the following credentials:
+    - Email: `test@example.com`
+    - Password: `password123`
 
-8. To stop the application and remove containers, networks, and volumes, run:
+7. To stop the application and remove containers, networks, and volumes, run:
    ```bash
    docker compose down -v
    ```
@@ -138,40 +144,33 @@ If you prefer to set up without Docker:
    ```
 6. Create indexes in MongoDB Atlas Search:
    ```bash
-   php artisan scout:index 'App\Models\Post'
-   php artisan scout:index 'App\Models\User'
+   php artisan app:create-search-indexes
    ```
-   
-7. Batch import posts and users into MongoDB Atlas Search:
-   ```bash
-   php artisan scout:import "App\Models\Post"
-   php artisan scout:import "App\Models\User"
-   ```
-8. Install and build frontend assets:
+7. Install and build frontend assets:
    ```bash
    npm install
    npm run dev
    ```
-9. Serve the application:
+8. Serve the application:
     ```bash
     php artisan serve
      ```
-10. Access the application:
-     Open your browser and navigate to `http://localhost:8000`.
+9. Access the application:
+   Open your browser and navigate to `http://localhost:8000`.
 
 ### Switching Between Postgres and MongoDB Versions
 
 To switch between database versions:
 
 1. Checkout the desired branch:
-   - For Postgres:
-     ```bash
-     git checkout main
-     ```
-   - For MongoDB:
-     ```bash
-     git checkout mongodb
-     ```
+    - For Postgres:
+      ```bash
+      git checkout main
+      ```
+    - For MongoDB:
+      ```bash
+      git checkout mongodb
+      ```
 2. Follow the setup instructions for the chosen branch. Remember to:
     - Stop and remove existing containers: `docker compose down -v`
     - Rebuild and start containers: `docker compose up -d --build`
@@ -181,5 +180,7 @@ To switch between database versions:
     - Run migrations again if needed (postgres main branch): php artisan migrate:fresh --seed
 
 ### Application Features
+
 A simple app ( users, blog posts, comments), full text search.
+
 - It allows us to demonstrate CRUD operations and relationships in both Postgres and MongoDB.

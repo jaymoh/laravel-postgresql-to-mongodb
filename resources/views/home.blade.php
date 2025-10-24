@@ -10,7 +10,7 @@
                 </div>
             @endif
 
-            <!-- Welcome Card -->
+            <!-- Welcome, Card -->
             <div class="card mb-4">
                 <div class="card-header">
                     <h4 class="mb-0">Welcome back, {{ Auth::user()->name }}!</h4>

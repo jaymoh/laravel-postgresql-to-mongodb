@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Collection;
-use Laravel\Scout\Searchable;
 use MongoDB\Laravel\Eloquent\Model;
 
 class Post extends Model
 {
-    use HasFactory, Searchable;
+    use HasFactory;
+
+    public const SEARCH_INDEX = 'posts_search_index';
 
     public static function findByMixedId($id): Post|null
     {
@@ -24,29 +24,7 @@ class Post extends Model
         return $post;
     }
 
-    protected $fillable = ['title', 'body', 'user_id', 'comments'];
-
-    public function toSearchableArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'created_at' => $this->created_at?->toIso8601String(),
-        ];
-    }
-
-    protected function makeAllSearchableUsing(Builder $query): Builder
-    {
-        return $query->with('user');
-    }
-
-    /**
-     * Get the name of the index associated with the model.
-     */
-    public function searchableAs(): string
-    {
-        return config('scout.prefix') . 'posts_index';
-    }
+    protected $fillable = ['title', 'body', 'user_id', 'comments', 'owner_name'];
 
     public function user(): BelongsTo
     {

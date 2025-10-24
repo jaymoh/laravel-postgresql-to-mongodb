@@ -27,20 +27,14 @@ echo "MongoDB is ready!"
 # Seed the database to create collections
 php artisan db:seed --force
 
-# Flush existing Scout indexes
-php artisan scout:flush "App\Models\User"
-php artisan scout:flush "App\Models\Post"
+# Flush existing Search indexes
+php artisan app:drop-search-indexes
 
 # Sleep to ensure indexes are flushed before re-creating them
 sleep 2
 
 # Prepare indexes for MongoDB Atlas Search
-php artisan scout:index "App\Models\User"
-php artisan scout:index "App\Models\Post"
-
-# Import posts and users into MongoDB Atlas Search indexes
-php artisan scout:import "App\Models\User"
-php artisan scout:import "App\Models\Post"
+php artisan app:create-search-indexes
 
 # Clear caches
 php artisan config:cache
