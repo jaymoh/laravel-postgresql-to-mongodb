@@ -7,6 +7,10 @@ db.createUser({
         {
             role: 'readWrite',
             db: 'laravel_blog'
+        },
+        {
+            role: 'clusterMonitor',
+            db: 'admin'
         }
     ]
 });
